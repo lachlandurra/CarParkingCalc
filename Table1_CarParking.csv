@@ -1,0 +1,97 @@
+Use,Rate Column A,Rate Column B,Car Parking Measure Column C
+Amusement parlour,4,3.5,To each 100 sq m of net floor area
+Art & craft centre,4,3.5,To each 100 sq m of net floor area
+Bar,0.4,0,To each patron permitted
+Bar,0,3.5,To each 100 sq m of leasable floor area
+Betting agency,4,3.5,To each 100 sq m of leasable floor area
+Bowling green,6,6,To each rink plus 50 per cent of any ancillary use
+Child care centre,0.22,0.22,To each child
+Cinema based entertainment facility,0.3,0.3,To each patron permitted
+Convenience restaurant,0.3,0,To each patron permitted
+Convenience restaurant,0,3.5,To each 100 sq m of leasable floor area
+Convenience shop if the leasable floor area exceeds 80 sq m,10,0,To each premises
+Convenience shop if the leasable floor area exceeds 80 sq m,0,3.5,To each 100 sq m of leasable floor area
+Display home centre,5,0,To each one or two bedroom dwelling
+Display home centre,2,0,"To each three or more bedroom dwelling (with
+studies or studios that are separate rooms counted
+as a bedrooms)"
+Display home centre,0,3.5,"For visitors to every 5 dwellings for developments of
+5 or more dwellings"
+Dwelling,1,1,To each one or two bedroom dwelling
+Dwelling,2,2,"To each three or more bedroom dwelling (with
+studies or studios that are separate rooms counted
+as a bedrooms)"
+Dwelling,1,0,"For visitors to every 5 dwellings for developments of
+5 or more dwellings"
+Education centre other than listed in this table ,0.4,0.3,To each student part of maximum number of students
+Food and drink premises other than listed in this table ,4,3.5,To each 100 sq m of leasable floor area
+Freezing and cool storage,1.5,1,To each 100 sq m of net floor area
+Fuel depot,10,10,Per cent of site area
+Funeral Parlour,0.3,0.3,To each patron permitted
+Gambling premises,0.4,0,To each patron permitted
+Gambling premises,0,3.5,To each 100 sq m of leasable floor area
+Golf course,4,4,To each hole plus 50 per cent of any ancillary use
+Home based business,1,0,To each employee not a resident
+Hotel,0.4,0,To each patron permitted
+Hotel,0,3.5,To each 100 sq m of leasable floor area
+Industry,2.9,1,To each 100 sq m of net floor area
+Landscape gardening supplies,10,10,Per cent of site area
+Mail centre,3.5,3,To each 100 sq m of net floor area
+Manufacturing sales,4,3.5,To each 100 sq m of leasable floor area
+Market,8,3.5,To each 100 sq m of site area
+Materials recycling,10,10,Per cent of site area
+Medical centre,5,0,To first person providing health services
+Medical centre,3,0,To every other person providing health services
+Medical centre,0,3.5,To each 100 sq m of leasable floor area
+Milk depot,10,10,Per cent of site area
+Motel,1,1,"To each unit, and one to each manager dwelling,
+plus 50 per cent of the relevant requirement of any
+ancillary use"
+Motor repairs,3,3,To each 100 sq m of net floor area
+Motor repairs,1,1,"for each vehicle being serviced, repaired or fitted
+with accessories, including vehicles waiting to be
+serviced, repaired, fitted with accessories or
+collected by owners"
+Office other than listed in this table,3.5,3,To each 100 sq m of net floor area
+Place of assembly other than listed in this table,0.3,0.3,To each patron permitted
+Postal agency,4,3.5,To each 100 sq m of leasable floor area
+Primary produce sales,4,3.5,To each 100 sq m of leasable floor area
+Primary school,1,1,"To each employee that is part of the maximum
+number of employees on the site at any time"
+Research and development centre,3.5,3,To each 100 sq m of net floor area
+Residential aged care facility,0.3,0.3,To each lodging room
+Residential village,1,1,To each one or two bedroom dwelling
+Residential village,2,2,"To each three or more bedroom dwelling (with
+studies or studios that are separate rooms counted
+as a bedrooms)"
+Residential village,1,0,"For visitors to every five dwellings for developments
+of five or more dwellings"
+Retirement village,1,1,To each one or two bedroom dwelling
+Retirement village,2,2,"To each three or more bedroom dwelling (with
+studies or studios that are separate rooms counted
+as a bedrooms)"
+Retirement village,1,0,"For visitors to every five dwellings for developments
+of five or more dwellings"
+Restaurant,0.4,0,To each patron permitted
+Restaurant,0,3.5,To each 100 sq m of leasable floor area
+Restricted retail premises,3,2.5,To each 100 sq m of leasable floor area
+Rooming house,1,1,To each four bedrooms
+Saleyard,10,10,Per cent of site area
+Secondary school,1.2,1.2,"To each employee that is part of the maximum
+number of employees on the site at any time"
+Shop,4,3.5,To each 100 sq m of leasable floor area
+Squash court,3,3,To each court
+Store,10,10,Per cent of site area
+Supermarket,5,5,To each 100 sq m of leasable floor area
+Swimming pool,5.6,5.6,To each 100 sq m of site
+Tennis court,4,4,"To each court plus 50% of the requirement of any
+ancillary use"
+Trade supplies,10,10,Per cent of site area
+Veterinary centre,5,0,To the first person providing animal health services
+Veterinary centre,3,0,"To every other person providing animal health
+services"
+Veterinary centre,0,3.5,To each 100 sq m of leasable floor area
+Warehouse other than listed in this table,2,2,To each premises
+Warehouse other than listed in this table,1.5,1,To each 100 sq m of net floor area
+Winery,0.4,0,To each patron permitted
+Winery,0,3.5,To each 100 sq m of leasable floor area

@@ -1,0 +1,39 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Car Parking Calculator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Car Parking Calculator</h1>
+    <form id="parking-form">
+      <label for="use-select">Select Use:</label>
+      <select id="use-select" required>
+        <option value="">--Please choose an option--</option>
+      </select>
+
+      <div id="dynamic-inputs"></div>
+
+      <label for="column-select">Select Column:</label>
+      <select id="column-select" required>
+        <option value="">--Please choose an option--</option>
+        <option value="A">Column A</option>
+        <option value="B">Column B</option>
+      </select>
+
+      <button type="submit">Calculate</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <!-- Include PapaParse Library -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

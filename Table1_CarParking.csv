@@ -34,7 +34,7 @@ Golf course,4,4,To each hole plus 50 per cent of any ancillary use
 Home based business,1,0,To each employee not a resident
 Hotel,0.4,0,To each patron permitted
 Hotel,0,3.5,To each 100 sq m of leasable floor area
-Industry,2.9,1,To each 100 sq m of net floor area
+Industry other than listed in this table,2.9,1,To each 100 sq m of net floor area
 Landscape gardening supplies,10,10,Per cent of site area
 Mail centre,3.5,3,To each 100 sq m of net floor area
 Manufacturing sales,4,3.5,To each 100 sq m of leasable floor area
@@ -79,12 +79,12 @@ Rooming house,1,1,To each four bedrooms
 Saleyard,10,10,Per cent of site area
 Secondary school,1.2,1.2,"To each employee that is part of the maximum
 number of employees on the site at any time"
-Shop,4,3.5,To each 100 sq m of leasable floor area
-Squash court,3,3,To each court
-Store,10,10,Per cent of site area
+Shop other than listed in this table,4,3.5,To each 100 sq m of leasable floor area
+Squash court – other than in conjunction with a dwelling,3,3,To each court
+Store other than listed in this table,10,10,Per cent of site area
 Supermarket,5,5,To each 100 sq m of leasable floor area
-Swimming pool,5.6,5.6,To each 100 sq m of site
-Tennis court,4,4,"To each court plus 50% of the requirement of any
+Swimming pool – other than in conjunction with a dwelling,5.6,5.6,To each 100 sq m of site
+Tennis court – other than in conjunction with a dwelling,4,4,"To each court plus 50% of the requirement of any
 ancillary use"
 Trade supplies,10,10,Per cent of site area
 Veterinary centre,5,0,To the first person providing animal health services

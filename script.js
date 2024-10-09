@@ -34,6 +34,11 @@ const measureConfig = [
     calculation: (rate, inputs) => (rate * inputs.net_floor_area) / 100,
   },
   {
+    pattern: /to each 100 sq m of floor area/,
+    inputs: [{ id: "floor_area", label: "Floor Area (sq m)" }],
+    calculation: (rate, inputs) => (rate * inputs.floor_area) / 100,
+  },
+  {
     pattern: /to each 100 sq m of (the )?site( area)?/,
     inputs: [{ id: "site_area_2", label: "Site Area (sq m)" }],
     calculation: (rate, inputs) => (rate * inputs.site_area_2) / 100,
@@ -92,6 +97,25 @@ const measureConfig = [
     inputs: [{ id: "three_more_bedroom_dwellings", label: "Number of Three or More Bedroom Dwellings" }],
     calculation: (rate, inputs) => rate * inputs.three_more_bedroom_dwellings,
   },
+  {
+    pattern: /to each dwelling for five or fewer contiguous dwellings/,
+    inputs: [{ id: "number_of_dwellings", label: "Number of Dwellings" }],
+    calculation: (rate, inputs) => {
+      const totalDwellings = inputs.number_of_dwellings;
+      const firstFiveRate = 5; // Rate for the first 5 dwellings
+      const additionalRate = 2; // Rate for additional dwellings
+  
+      let parkingSpaces = 0;
+  
+      if (totalDwellings <= 5) {
+        parkingSpaces = firstFiveRate * totalDwellings;
+      } else {
+        parkingSpaces = (firstFiveRate * 5) + (additionalRate * (totalDwellings - 5));
+      }
+  
+      return parkingSpaces;
+    },
+  },  
   {
     pattern: /visitors to every/,
     inputs: [{ id: "number_of_dwellings", label: "Total Number of Dwellings" }],

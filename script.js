@@ -2,21 +2,122 @@
 
 // Access the DOM elements
 const useSelect = document.getElementById("use-select");
+const columnSelect = document.getElementById("column-select");
 const dynamicInputs = document.getElementById("dynamic-inputs");
 const parkingForm = document.getElementById("parking-form");
 const resultDiv = document.getElementById("result");
-const columnSelect = document.getElementById("column-select");
 
 // Wait for the data to be loaded before initializing
 dataPromise.then(() => {
-  initializeDropdown();
+  initializeDropdowns();
 }).catch(err => {
+  console.log("Error: ", err);
   alert("Failed to load car parking data. Please try again.");
 });
 
-// Function to initialize the Use dropdown
-function initializeDropdown() {
-  // Get unique uses
+// Configuration object mapping measures to input fields and calculation logic
+const measureConfig = {
+  // Measure Keyword: Configuration
+  "per cent of site area": {
+    inputs: [{ id: "site_area", label: "Site Area (sq m)" }],
+    calculation: (rate, inputs) => (rate / 100) * inputs.site_area,
+  },
+  "to each 100 sq m of leasable floor area": {
+    inputs: [{ id: "leasable_floor_area", label: "Leasable Floor Area (sq m)" }],
+    calculation: (rate, inputs) => (rate * inputs.leasable_floor_area) / 100,
+  },
+  "to each 100 sq m of net floor area": {
+    inputs: [{ id: "net_floor_area", label: "Net Floor Area (sq m)" }],
+    calculation: (rate, inputs) => (rate * inputs.net_floor_area) / 100,
+  },
+  "to each patron permitted": {
+    inputs: [{ id: "number_of_patrons", label: "Number of Patrons Permitted" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_patrons,
+  },
+  "to each child": {
+    inputs: [{ id: "number_of_children", label: "Number of Children" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_children,
+  },
+  "to each employee": {
+    inputs: [{ id: "number_of_employees", label: "Number of Employees" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_employees,
+  },
+  "to each court": {
+    inputs: [{ id: "number_of_courts", label: "Number of Courts" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_courts,
+  },
+  "to each rink": {
+    inputs: [
+      { id: "number_of_rinks", label: "Number of Rinks" },
+      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
+    ],
+    calculation: (rate, inputs) => rate * inputs.number_of_rinks + 0.5 * (inputs.ancillary_use || 0),
+  },
+  "to each hole": {
+    inputs: [
+      { id: "number_of_holes", label: "Number of Holes" },
+      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
+    ],
+    calculation: (rate, inputs) => rate * inputs.number_of_holes + 0.5 * (inputs.ancillary_use || 0),
+  },
+  "to each unit": {
+    inputs: [
+      { id: "number_of_units", label: "Number of Units" },
+      { id: "number_of_manager_dwellings", label: "Number of Manager Dwellings" },
+      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
+    ],
+    calculation: (rate, inputs) => rate * (inputs.number_of_units + inputs.number_of_manager_dwellings) + 0.5 * (inputs.ancillary_use || 0),
+  },
+  "one or two bedroom dwelling": {
+    inputs: [{ id: "one_two_bedroom_dwellings", label: "Number of One or Two Bedroom Dwellings" }],
+    calculation: (rate, inputs) => rate * inputs.one_two_bedroom_dwellings,
+  },
+  "three or more bedroom dwelling": {
+    inputs: [{ id: "three_more_bedroom_dwellings", label: "Number of Three or More Bedroom Dwellings" }],
+    calculation: (rate, inputs) => rate * inputs.three_more_bedroom_dwellings,
+  },
+  "visitors to every": {
+    inputs: [{ id: "number_of_dwellings", label: "Total Number of Dwellings" }],
+    calculation: (rate, inputs) => {
+      if (inputs.number_of_dwellings >= 5) {
+        return Math.floor((inputs.number_of_dwellings / 5)) * rate;
+      }
+      return 0;
+    },
+  },
+  "to each student": {
+    inputs: [{ id: "number_of_students", label: "Number of Students" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_students,
+  },
+  "to each lodging room": {
+    inputs: [{ id: "number_of_lodging_rooms", label: "Number of Lodging Rooms" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_lodging_rooms,
+  },
+  "bedroom": {
+    inputs: [{ id: "number_of_bedrooms", label: "Number of Bedrooms" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_bedrooms / 4, // Adjust as needed
+  },
+  "premises": {
+    inputs: [], // No additional input needed
+    calculation: (rate) => rate,
+  },
+  "first person providing health services": {
+    inputs: [{ id: "first_persons", label: "Is there a first person providing health services? (Enter 1 if yes, 0 if no)" }],
+    calculation: (rate, inputs) => rate * inputs.first_persons,
+  },
+  "every other person providing health services": {
+    inputs: [{ id: "other_persons", label: "Number of Other Persons Providing Health Services" }],
+    calculation: (rate, inputs) => rate * inputs.other_persons,
+  },
+  "vehicle being serviced": {
+    inputs: [{ id: "vehicles_being_serviced", label: "Number of Vehicles Being Serviced" }],
+    calculation: (rate, inputs) => rate * inputs.vehicles_being_serviced,
+  },
+  // Add other measures as needed
+};
+
+// Function to initialize both dropdowns
+function initializeDropdowns() {
   const uniqueUses = [...new Set(carParkingData.map(item => item.use))].sort();
 
   uniqueUses.forEach(use => {
@@ -26,213 +127,49 @@ function initializeDropdown() {
     useSelect.appendChild(option);
   });
 
-  // Add event listener after dropdown is populated
-  useSelect.addEventListener("change", onUseChange);
+  // Add event listeners
+  useSelect.addEventListener("change", generateDynamicInputs);
+  columnSelect.addEventListener("change", generateDynamicInputs);
 }
 
-// Event handler for Use selection
-function onUseChange() {
+// Function to generate dynamic inputs based on Use and Column
+function generateDynamicInputs() {
   dynamicInputs.innerHTML = "";
   resultDiv.textContent = "";
 
   const selectedUse = useSelect.value;
+  const selectedColumn = columnSelect.value;
 
-  if (selectedUse) {
-    // Get all entries for the selected use
-    const entries = carParkingData.filter(item => item.use === selectedUse);
+  if (selectedUse && selectedColumn) {
+    // Get all entries for the selected use and column
+    const entries = carParkingData.filter(item =>
+      item.use === selectedUse &&
+      ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+    );
 
-    // Create input fields based on measures
-    entries.forEach((entry, index) => {
+    // To avoid duplicate inputs, keep track of created input IDs
+    const createdInputs = new Set();
+
+    entries.forEach((entry) => {
       const measure = entry.measure.toLowerCase();
 
-      // Determine required inputs based on measure
-      if (measure.includes("patron permitted")) {
-        createInputField(
-          "number",
-          `number_of_patrons_${index}`,
-          "Number of Patrons Permitted",
-          true
-        );
-      }
-      if (measure.includes("leasable floor area")) {
-        createInputField(
-          "number",
-          `leasable_floor_area_${index}`,
-          "Leasable Floor Area (sq m)",
-          true
-        );
-      }
-      if (measure.includes("net floor area")) {
-        createInputField(
-          "number",
-          `net_floor_area_${index}`,
-          "Net Floor Area (sq m)",
-          true
-        );
-      }
-      if (measure.includes("site area")) {
-        createInputField(
-          "number",
-          `site_area_${index}`,
-          "Site Area (sq m)",
-          true
-        );
-      }
-      if (measure.includes("employee")) {
-        createInputField(
-          "number",
-          `number_of_employees_${index}`,
-          "Number of Employees",
-          true
-        );
-      }
-      if (measure.includes("child")) {
-        createInputField(
-          "number",
-          `number_of_children_${index}`,
-          "Number of Children",
-          true
-        );
-      }
-      if (measure.includes("court")) {
-        createInputField(
-          "number",
-          `number_of_courts_${index}`,
-          "Number of Courts",
-          true
-        );
-      }
-      if (measure.includes("rink")) {
-        createInputField(
-          "number",
-          `number_of_rinks_${index}`,
-          "Number of Rinks",
-          true
-        );
-        // Handle ancillary use
-        createInputField(
-          "number",
-          `ancillary_use_${index}`,
-          "Ancillary Use Requirement",
-          false // Optional
-        );
-      }
-      if (measure.includes("hole")) {
-        createInputField(
-          "number",
-          `number_of_holes_${index}`,
-          "Number of Holes",
-          true
-        );
-        // Handle ancillary use
-        createInputField(
-          "number",
-          `ancillary_use_${index}`,
-          "Ancillary Use Requirement",
-          false // Optional
-        );
-      }
-      if (measure.includes("vehicle being serviced")) {
-        createInputField(
-          "number",
-          `number_of_vehicles_${index}`,
-          "Number of Vehicles Being Serviced",
-          true
-        );
-      }
-      if (measure.includes("unit")) {
-        createInputField(
-          "number",
-          `number_of_units_${index}`,
-          "Number of Units",
-          true
-        );
-        createInputField(
-          "number",
-          `number_of_manager_dwellings_${index}`,
-          "Number of Manager Dwellings",
-          true
-        );
-        // Handle ancillary use
-        createInputField(
-          "number",
-          `ancillary_use_${index}`,
-          "Ancillary Use Requirement",
-          false // Optional
-        );
-      }
-      if (measure.includes("dwelling")) {
-        createInputField(
-          "number",
-          `one_two_bedroom_dwellings_${index}`,
-          "Number of One or Two Bedroom Dwellings",
-          true
-        );
-        createInputField(
-          "number",
-          `three_more_bedroom_dwellings_${index}`,
-          "Number of Three or More Bedroom Dwellings",
-          true
-        );
-        if (measure.includes("visitors to every")) {
-          createInputField(
-            "number",
-            `number_of_dwellings_${index}`,
-            "Total Number of Dwellings",
-            true
-          );
+      // Find the measure configuration that matches the measure in the entry
+      for (const [keyword, config] of Object.entries(measureConfig)) {
+        if (measure.includes(keyword)) {
+          config.inputs.forEach(inputConfig => {
+            const inputId = inputConfig.id;
+            if (!createdInputs.has(inputId)) {
+              createInputField(
+                "number",
+                inputId,
+                inputConfig.label,
+                inputConfig.required !== false // Default to true if not specified
+              );
+              createdInputs.add(inputId);
+            }
+          });
+          break; // Stop after finding the first matching measure
         }
-      }
-      if (measure.includes("student")) {
-        createInputField(
-          "number",
-          `number_of_students_${index}`,
-          "Number of Students",
-          true
-        );
-      }
-      if (measure.includes("lodging room")) {
-        createInputField(
-          "number",
-          `number_of_lodging_rooms_${index}`,
-          "Number of Lodging Rooms",
-          true
-        );
-      }
-      if (measure.includes("bedroom")) {
-        createInputField(
-          "number",
-          `number_of_bedrooms_${index}`,
-          "Number of Bedrooms",
-          true
-        );
-      }
-      if (measure.includes("premises")) {
-        // For "To each premises", no additional input needed
-      }
-      if (measure.includes("per cent of site area")) {
-        createInputField(
-          "number",
-          `site_area_${index}`,
-          "Site Area (sq m)",
-          true
-        );
-      }
-      if (measure.includes("for each vehicle")) {
-        createInputField(
-          "number",
-          `number_of_vehicles_${index}`,
-          "Number of Vehicles",
-          true
-        );
-      }
-      if (measure.includes("additional input")) {
-        createInputField(
-          "number",
-          `additional_input_${index}`,
-          "Additional Input",
-          true
-        );
       }
     });
   }
@@ -240,6 +177,9 @@ function onUseChange() {
 
 // Function to create input fields
 function createInputField(type, id, labelText, required) {
+  // Avoid creating duplicate inputs
+  if (document.getElementById(id)) return;
+
   const label = document.createElement("label");
   label.htmlFor = id;
   label.textContent = labelText;
@@ -272,154 +212,34 @@ parkingForm.addEventListener("submit", (e) => {
     return;
   }
 
-  // Get all entries for the selected use
-  const entries = carParkingData.filter(item => item.use === selectedUse);
+  // Get all entries for the selected use and column
+  const entries = carParkingData.filter(item =>
+    item.use === selectedUse &&
+    ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+  );
+
   let totalParkingSpaces = 0;
 
-  entries.forEach((entry, index) => {
-    let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
+  // Collect input values
+  const inputValues = {};
+  const inputElements = dynamicInputs.querySelectorAll("input");
+  inputElements.forEach(input => {
+    inputValues[input.id] = parseNumber(input.value);
+  });
 
+  entries.forEach((entry) => {
+    let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
     if (rate === 0) return; // Skip if rate is zero
 
     const measure = entry.measure.toLowerCase();
-
     let parkingSpaces = 0;
 
-    // Perform calculations based on measure
-    if (measure.includes("patron permitted")) {
-      const numberOfPatrons = parseNumber(
-        document.getElementById(`number_of_patrons_${index}`)?.value || 0
-      );
-      parkingSpaces = rate * numberOfPatrons;
-    }
-    if (measure.includes("leasable floor area")) {
-      const floorArea = parseNumber(
-        document.getElementById(`leasable_floor_area_${index}`)?.value || 0
-      );
-      parkingSpaces += (rate * floorArea) / 100;
-    }
-    if (measure.includes("net floor area")) {
-      const floorArea = parseNumber(
-        document.getElementById(`net_floor_area_${index}`)?.value || 0
-      );
-      parkingSpaces += (rate * floorArea) / 100;
-    }
-    if (measure.includes("site area") && measure.includes("per cent")) {
-      const siteArea = parseNumber(
-        document.getElementById(`site_area_${index}`)?.value || 0
-      );
-      parkingSpaces += (rate / 100) * siteArea;
-    }
-    if (measure.includes("site area") && !measure.includes("per cent")) {
-      const siteArea = parseNumber(
-        document.getElementById(`site_area_${index}`)?.value || 0
-      );
-      parkingSpaces += (rate * siteArea) / 100;
-    }
-    if (measure.includes("employee") && measure.includes("part of maximum")) {
-      const numberOfEmployees = parseNumber(
-        document.getElementById(`number_of_employees_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfEmployees;
-    }
-    if (measure.includes("employee") && !measure.includes("part of maximum")) {
-      const numberOfEmployees = parseNumber(
-        document.getElementById(`number_of_employees_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfEmployees;
-    }
-    if (measure.includes("child")) {
-      const numberOfChildren = parseNumber(
-        document.getElementById(`number_of_children_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfChildren;
-    }
-    if (measure.includes("court")) {
-      const numberOfCourts = parseNumber(
-        document.getElementById(`number_of_courts_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfCourts;
-    }
-    if (measure.includes("rink")) {
-      const numberOfRinks = parseNumber(
-        document.getElementById(`number_of_rinks_${index}`)?.value || 0
-      );
-      const ancillaryUse = parseNumber(
-        document.getElementById(`ancillary_use_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfRinks + 0.5 * ancillaryUse;
-    }
-    if (measure.includes("hole")) {
-      const numberOfHoles = parseNumber(
-        document.getElementById(`number_of_holes_${index}`)?.value || 0
-      );
-      const ancillaryUse = parseNumber(
-        document.getElementById(`ancillary_use_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfHoles + 0.5 * ancillaryUse;
-    }
-    if (measure.includes("vehicle being serviced")) {
-      const numberOfVehicles = parseNumber(
-        document.getElementById(`number_of_vehicles_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfVehicles;
-    }
-    if (measure.includes("unit")) {
-      const numberOfUnits = parseNumber(
-        document.getElementById(`number_of_units_${index}`)?.value || 0
-      );
-      const numberOfManagerDwellings = parseNumber(
-        document.getElementById(`number_of_manager_dwellings_${index}`)?.value || 0
-      );
-      const ancillaryUse = parseNumber(
-        document.getElementById(`ancillary_use_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfUnits + rate * numberOfManagerDwellings + 0.5 * ancillaryUse;
-    }
-    if (measure.includes("dwelling")) {
-      const oneTwoBedroomDwellings = parseNumber(
-        document.getElementById(`one_two_bedroom_dwellings_${index}`)?.value || 0
-      );
-      const threeMoreBedroomDwellings = parseNumber(
-        document.getElementById(`three_more_bedroom_dwellings_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * oneTwoBedroomDwellings + rate * threeMoreBedroomDwellings;
-
-      if (measure.includes("visitors to every")) {
-        const totalDwellings = parseNumber(
-          document.getElementById(`number_of_dwellings_${index}`)?.value || 0
-        );
-        if (totalDwellings >= 5) {
-          parkingSpaces += Math.floor((totalDwellings / 5) * rate);
-        }
+    // Find the measure configuration that matches the measure in the entry
+    for (const [keyword, config] of Object.entries(measureConfig)) {
+      if (measure.includes(keyword)) {
+        parkingSpaces += config.calculation(rate, inputValues);
+        break; // Stop after finding the first matching measure
       }
-    }
-    if (measure.includes("student")) {
-      const numberOfStudents = parseNumber(
-        document.getElementById(`number_of_students_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfStudents;
-    }
-    if (measure.includes("lodging room")) {
-      const numberOfLodgingRooms = parseNumber(
-        document.getElementById(`number_of_lodging_rooms_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * numberOfLodgingRooms;
-    }
-    if (measure.includes("bedroom")) {
-      const numberOfBedrooms = parseNumber(
-        document.getElementById(`number_of_bedrooms_${index}`)?.value || 0
-      );
-      parkingSpaces += Math.floor((rate * numberOfBedrooms) / 4); // Assuming 1 parking per 4 bedrooms
-    }
-    if (measure.includes("premises")) {
-      parkingSpaces += rate; // Since it's per premises
-    }
-    if (measure.includes("additional input")) {
-      const additionalInput = parseNumber(
-        document.getElementById(`additional_input_${index}`)?.value || 0
-      );
-      parkingSpaces += rate * additionalInput;
     }
 
     // Round down the parking spaces

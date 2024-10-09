@@ -11,12 +11,9 @@ Convenience restaurant,0.3,0,To each patron permitted
 Convenience restaurant,0,3.5,To each 100 sq m of leasable floor area
 Convenience shop if the leasable floor area exceeds 80 sq m,10,0,To each premises
 Convenience shop if the leasable floor area exceeds 80 sq m,0,3.5,To each 100 sq m of leasable floor area
-Display home centre,5,0,To each one or two bedroom dwelling
-Display home centre,2,0,"To each three or more bedroom dwelling (with
-studies or studios that are separate rooms counted
-as a bedrooms)"
-Display home centre,0,3.5,"For visitors to every 5 dwellings for developments of
-5 or more dwellings"
+Display home centre,5,0,"To each dwelling for five or fewer contiguous dwellings, plus"
+Display home centre,2,0,"To each additional contiguous dwelling"
+Display home centre,0,3.5,"To each 100 sq m of floor area"
 Dwelling,1,1,To each one or two bedroom dwelling
 Dwelling,2,2,"To each three or more bedroom dwelling (with
 studies or studios that are separate rooms counted
@@ -80,7 +77,8 @@ Saleyard,10,10,Per cent of site area
 Secondary school,1.2,1.2,"To each employee that is part of the maximum
 number of employees on the site at any time"
 Shop other than listed in this table,4,3.5,To each 100 sq m of leasable floor area
-Squash court – other than in conjunction with a dwelling,3,3,To each court
+Squash court – other than in conjunction with a dwelling,3,3,"To each court plus 50 per cent of the relevant
+requirement of any ancillary use"
 Store other than listed in this table,10,10,Per cent of site area
 Supermarket,5,5,To each 100 sq m of leasable floor area
 Swimming pool – other than in conjunction with a dwelling,5.6,5.6,To each 100 sq m of site

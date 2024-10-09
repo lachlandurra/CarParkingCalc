@@ -16,105 +16,129 @@ dataPromise.then(() => {
 });
 
 // Configuration object mapping measures to input fields and calculation logic
-const measureConfig = {
+const measureConfig = [
   // Measure Keyword: Configuration
-  "per cent of site area": {
+  {
+    pattern: /per cent of site area/,
     inputs: [{ id: "site_area", label: "Site Area (sq m)" }],
     calculation: (rate, inputs) => (rate / 100) * inputs.site_area,
   },
-  "to each 100 sq m of leasable floor area": {
+  {
+    pattern: /to each 100 sq m of leasable floor area/,
     inputs: [{ id: "leasable_floor_area", label: "Leasable Floor Area (sq m)" }],
     calculation: (rate, inputs) => (rate * inputs.leasable_floor_area) / 100,
   },
-  "to each 100 sq m of net floor area": {
+  {
+    pattern: /to each 100 sq m of net floor area/,
     inputs: [{ id: "net_floor_area", label: "Net Floor Area (sq m)" }],
     calculation: (rate, inputs) => (rate * inputs.net_floor_area) / 100,
   },
-  "to each patron permitted": {
+  {
+    pattern: /to each 100 sq m of (the )?site( area)?/,
+    inputs: [{ id: "site_area_2", label: "Site Area (sq m)" }],
+    calculation: (rate, inputs) => (rate * inputs.site_area_2) / 100,
+  },
+  {
+    pattern: /to each patron permitted/,
     inputs: [{ id: "number_of_patrons", label: "Number of Patrons Permitted" }],
     calculation: (rate, inputs) => rate * inputs.number_of_patrons,
   },
-  "to each child": {
+  {
+    pattern: /to each child/,
     inputs: [{ id: "number_of_children", label: "Number of Children" }],
     calculation: (rate, inputs) => rate * inputs.number_of_children,
   },
-  "to each employee": {
+  {
+    pattern: /to each employee/,
     inputs: [{ id: "number_of_employees", label: "Number of Employees" }],
     calculation: (rate, inputs) => rate * inputs.number_of_employees,
   },
-  "to each court": {
+
+  {
+    pattern: /to each court/,
     inputs: [{ id: "number_of_courts", label: "Number of Courts" }],
     calculation: (rate, inputs) => rate * inputs.number_of_courts,
   },
-  "to each rink": {
-    inputs: [
-      { id: "number_of_rinks", label: "Number of Rinks" },
-      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
-    ],
-    calculation: (rate, inputs) => rate * inputs.number_of_rinks + 0.5 * (inputs.ancillary_use || 0),
+  {
+    pattern: /to each rink/,
+    inputs: [{ id: "number_of_rinks", label: "Number of Rinks" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_rinks,
   },
-  "to each hole": {
-    inputs: [
-      { id: "number_of_holes", label: "Number of Holes" },
-      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
-    ],
-    calculation: (rate, inputs) => rate * inputs.number_of_holes + 0.5 * (inputs.ancillary_use || 0),
+  {
+    pattern: /to each hole/,
+    inputs: [{ id: "number_of_holes", label: "Number of Holes" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_holes,
   },
-  "to each unit": {
+  {
+    pattern: /ancillary use/,
+    inputs: [{ id: "ancillary_use_requirement", label: "Ancillary Use Requirement" }],
+    calculation: (rate, inputs) => 0.5 * inputs.ancillary_use_requirement,
+  },
+  {
+    pattern: /to each unit/,
     inputs: [
       { id: "number_of_units", label: "Number of Units" },
-      { id: "number_of_manager_dwellings", label: "Number of Manager Dwellings" },
-      { id: "ancillary_use", label: "Ancillary Use Requirement (optional)", required: false },
+      { id: "number_of_manager_dwellings", label: "Number of Manager Dwellings" }
     ],
-    calculation: (rate, inputs) => rate * (inputs.number_of_units + inputs.number_of_manager_dwellings) + 0.5 * (inputs.ancillary_use || 0),
+    calculation: (rate, inputs) => rate * (inputs.number_of_units + inputs.number_of_manager_dwellings),
   },
-  "one or two bedroom dwelling": {
+  {
+    pattern: /one or two bedroom dwelling/,
     inputs: [{ id: "one_two_bedroom_dwellings", label: "Number of One or Two Bedroom Dwellings" }],
     calculation: (rate, inputs) => rate * inputs.one_two_bedroom_dwellings,
   },
-  "three or more bedroom dwelling": {
+  {
+    pattern: /three or more bedroom dwelling/,
     inputs: [{ id: "three_more_bedroom_dwellings", label: "Number of Three or More Bedroom Dwellings" }],
     calculation: (rate, inputs) => rate * inputs.three_more_bedroom_dwellings,
   },
-  "visitors to every": {
+  {
+    pattern: /visitors to every/,
     inputs: [{ id: "number_of_dwellings", label: "Total Number of Dwellings" }],
     calculation: (rate, inputs) => {
       if (inputs.number_of_dwellings >= 5) {
-        return Math.floor((inputs.number_of_dwellings / 5)) * rate;
+        return Math.floor(inputs.number_of_dwellings / 5) * rate;
       }
       return 0;
     },
   },
-  "to each student": {
+  {
+    pattern: /to each student/,
     inputs: [{ id: "number_of_students", label: "Number of Students" }],
     calculation: (rate, inputs) => rate * inputs.number_of_students,
   },
-  "to each lodging room": {
+  {
+    pattern: /to each lodging room/,
     inputs: [{ id: "number_of_lodging_rooms", label: "Number of Lodging Rooms" }],
     calculation: (rate, inputs) => rate * inputs.number_of_lodging_rooms,
   },
-  "bedroom": {
+  {
+    pattern: /bedroom/,
     inputs: [{ id: "number_of_bedrooms", label: "Number of Bedrooms" }],
     calculation: (rate, inputs) => rate * inputs.number_of_bedrooms / 4, // Adjust as needed
   },
-  "premises": {
-    inputs: [], // No additional input needed
-    calculation: (rate) => rate,
+  {
+    pattern: /premises/,
+    inputs: [{ id: "number_of_premises", label: "Number of Premises" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_premises,
   },
-  "first person providing health services": {
+  {
+    pattern: /first person providing/,
     inputs: [{ id: "first_persons", label: "Is there a first person providing health services? (Enter 1 if yes, 0 if no)" }],
     calculation: (rate, inputs) => rate * inputs.first_persons,
   },
-  "every other person providing health services": {
+  {
+    pattern: /every other person providing/,
     inputs: [{ id: "other_persons", label: "Number of Other Persons Providing Health Services" }],
     calculation: (rate, inputs) => rate * inputs.other_persons,
   },
-  "vehicle being serviced": {
+  {
+    pattern: /vehicle being serviced/,
     inputs: [{ id: "vehicles_being_serviced", label: "Number of Vehicles Being Serviced" }],
     calculation: (rate, inputs) => rate * inputs.vehicles_being_serviced,
-  },
+  }
   // Add other measures as needed
-};
+];
 
 // Function to initialize both dropdowns
 function initializeDropdowns() {
@@ -153,24 +177,34 @@ function generateDynamicInputs() {
     entries.forEach((entry) => {
       const measure = entry.measure.toLowerCase();
 
-      // Find the measure configuration that matches the measure in the entry
-      for (const [keyword, config] of Object.entries(measureConfig)) {
-        if (measure.includes(keyword)) {
-          config.inputs.forEach(inputConfig => {
-            const inputId = inputConfig.id;
-            if (!createdInputs.has(inputId)) {
-              createInputField(
-                "number",
-                inputId,
-                inputConfig.label,
-                inputConfig.required !== false // Default to true if not specified
-              );
-              createdInputs.add(inputId);
-            }
-          });
-          break; // Stop after finding the first matching measure
+      console.log(measure)
+
+      // Split the measure string into components
+      const measureComponents = measure.split(/ plus | and /);
+
+      console.log(measureComponents)
+
+      // For each component, find matching measureConfig entry
+      measureComponents.forEach((component) => {
+        component = component.trim();
+        for (const config of measureConfig) {
+          if (config.pattern.test(component)) {
+            config.inputs.forEach(inputConfig => {
+              const inputId = inputConfig.id;
+              if (!createdInputs.has(inputId)) {
+                createInputField(
+                  "number",
+                  inputId,
+                  inputConfig.label,
+                  inputConfig.required !== false // Default to true if not specified
+                );
+                createdInputs.add(inputId);
+              }
+            });
+            break; // Stop after finding the first matching measure
+          }
         }
-      }
+      });
     });
   }
 }
@@ -232,15 +266,22 @@ parkingForm.addEventListener("submit", (e) => {
     if (rate === 0) return; // Skip if rate is zero
 
     const measure = entry.measure.toLowerCase();
+
+    // Split the measure string into components
+    const measureComponents = measure.split(/ plus | and /);
+
     let parkingSpaces = 0;
 
-    // Find the measure configuration that matches the measure in the entry
-    for (const [keyword, config] of Object.entries(measureConfig)) {
-      if (measure.includes(keyword)) {
-        parkingSpaces += config.calculation(rate, inputValues);
-        break; // Stop after finding the first matching measure
+    // For each component, find matching measureConfig entry
+    measureComponents.forEach((component) => {
+      component = component.trim();
+      for (const config of measureConfig) {
+        if (config.pattern.test(component)) {
+          parkingSpaces += config.calculation(rate, inputValues);
+          break; // Stop after finding the first matching measure
+        }
       }
-    }
+    });
 
     // Round down the parking spaces
     parkingSpaces = Math.floor(parkingSpaces);

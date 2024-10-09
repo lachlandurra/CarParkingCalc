@@ -1,15 +1,14 @@
 // script.js
 
 // Access the DOM elements
-const useSelect = document.getElementById("use-select");
-const columnSelect = document.getElementById("column-select");
-const dynamicInputs = document.getElementById("dynamic-inputs");
+const usesContainer = document.getElementById("uses-container");
+const addUseButton = document.getElementById("add-use-button");
 const parkingForm = document.getElementById("parking-form");
 const resultDiv = document.getElementById("result");
 
 // Wait for the data to be loaded before initializing
 dataPromise.then(() => {
-  initializeDropdowns();
+  initializeUseSelectors();
 }).catch(err => {
   console.log("Error: ", err);
   alert("Failed to load car parking data. Please try again.");
@@ -164,6 +163,86 @@ const measureConfig = [
   // Add other measures as needed
 ];
 
+// Initialize the first use selector
+function initializeUseSelectors() {
+  addUse();
+}
+
+
+// Function to add a new use section
+function addUse() {
+  const useIndex = usesContainer.childElementCount;
+
+  // Create a container for the use
+  const useDiv = document.createElement("div");
+  useDiv.classList.add("use-section");
+  useDiv.dataset.index = useIndex;
+
+  // Create 'Use' select
+  const useLabel = document.createElement("label");
+  useLabel.textContent = "Use:";
+  useLabel.htmlFor = `use-select-${useIndex}`;
+
+  const useSelect = document.createElement("select");
+  useSelect.id = `use-select-${useIndex}`;
+  useSelect.name = `use-select-${useIndex}`;
+  useSelect.required = true;
+
+  // Populate 'Use' select options
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "-- Select Use --";
+  useSelect.appendChild(defaultOption);
+
+  const uniqueUses = [...new Set(carParkingData.map(item => item.use))].sort();
+  uniqueUses.forEach(use => {
+    const option = document.createElement("option");
+    option.value = use;
+    option.textContent = use;
+    useSelect.appendChild(option);
+  });
+
+  // Create 'Column' select
+  const columnLabel = document.createElement("label");
+  columnLabel.textContent = "Column:";
+  columnLabel.htmlFor = `column-select-${useIndex}`;
+
+  const columnSelect = document.createElement("select");
+  columnSelect.id = `column-select-${useIndex}`;
+  columnSelect.name = `column-select-${useIndex}`;
+  columnSelect.required = true;
+
+  const columnOptionA = document.createElement("option");
+  columnOptionA.value = "A";
+  columnOptionA.textContent = "A";
+
+  const columnOptionB = document.createElement("option");
+  columnOptionB.value = "B";
+  columnOptionB.textContent = "B";
+
+  columnSelect.appendChild(columnOptionA);
+  columnSelect.appendChild(columnOptionB);
+
+  // Container for dynamic inputs
+  const dynamicInputs = document.createElement("div");
+  dynamicInputs.classList.add("dynamic-inputs");
+  dynamicInputs.id = `dynamic-inputs-${useIndex}`;
+
+  // Append elements to useDiv
+  useDiv.appendChild(useLabel);
+  useDiv.appendChild(useSelect);
+  useDiv.appendChild(columnLabel);
+  useDiv.appendChild(columnSelect);
+  useDiv.appendChild(dynamicInputs);
+
+  // Add useDiv to usesContainer
+  usesContainer.appendChild(useDiv);
+
+  // Add event listeners
+  useSelect.addEventListener("change", () => generateDynamicInputs(useIndex));
+  columnSelect.addEventListener("change", () => generateDynamicInputs(useIndex));
+}
+
 // Function to initialize both dropdowns
 function initializeDropdowns() {
   const uniqueUses = [...new Set(carParkingData.map(item => item.use))].sort();
@@ -180,10 +259,15 @@ function initializeDropdowns() {
   columnSelect.addEventListener("change", generateDynamicInputs);
 }
 
+
 // Function to generate dynamic inputs based on Use and Column
-function generateDynamicInputs() {
+function generateDynamicInputs(useIndex) {
+  const useDiv = usesContainer.querySelector(`div[data-index='${useIndex}']`);
+  const useSelect = useDiv.querySelector(`#use-select-${useIndex}`);
+  const columnSelect = useDiv.querySelector(`#column-select-${useIndex}`);
+  const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${useIndex}`);
+
   dynamicInputs.innerHTML = "";
-  resultDiv.textContent = "";
 
   const selectedUse = useSelect.value;
   const selectedColumn = columnSelect.value;
@@ -201,12 +285,8 @@ function generateDynamicInputs() {
     entries.forEach((entry) => {
       const measure = entry.measure.toLowerCase();
 
-      console.log(measure)
-
       // Split the measure string into components
       const measureComponents = measure.split(/ plus | and /);
-
-      console.log(measureComponents)
 
       // For each component, find matching measureConfig entry
       measureComponents.forEach((component) => {
@@ -214,13 +294,15 @@ function generateDynamicInputs() {
         for (const config of measureConfig) {
           if (config.pattern.test(component)) {
             config.inputs.forEach(inputConfig => {
-              const inputId = inputConfig.id;
+              // Modify input IDs to be unique per use
+              const inputId = `${inputConfig.id}_${useIndex}`;
               if (!createdInputs.has(inputId)) {
                 createInputField(
                   "number",
                   inputId,
                   inputConfig.label,
-                  inputConfig.required !== false // Default to true if not specified
+                  dynamicInputs,
+                  true
                 );
                 createdInputs.add(inputId);
               }
@@ -234,7 +316,7 @@ function generateDynamicInputs() {
 }
 
 // Function to create input fields
-function createInputField(type, id, labelText, required) {
+function createInputField(type, id, labelText, container, required) {
   // Avoid creating duplicate inputs
   if (document.getElementById(id)) return;
 
@@ -248,8 +330,8 @@ function createInputField(type, id, labelText, required) {
   input.name = id;
   input.required = required;
 
-  dynamicInputs.appendChild(label);
-  dynamicInputs.appendChild(input);
+  container.appendChild(label);
+  container.appendChild(input);
 }
 
 // Helper function to parse numbers safely
@@ -262,56 +344,186 @@ function parseNumber(value) {
 parkingForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const selectedUse = useSelect.value;
-  const selectedColumn = columnSelect.value;
-
-  if (!selectedUse || !selectedColumn) {
-    alert("Please select a use and a column.");
-    return;
-  }
-
-  // Get all entries for the selected use and column
-  const entries = carParkingData.filter(item =>
-    item.use === selectedUse &&
-    ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
-  );
+  const useSections = usesContainer.querySelectorAll(".use-section");
 
   let totalParkingSpaces = 0;
+  const useResults = [];
+  const parkingRequirements = []; // To store parking spaces per use for ancillary calculations
 
-  // Collect input values
-  const inputValues = {};
-  const inputElements = dynamicInputs.querySelectorAll("input");
-  inputElements.forEach(input => {
-    inputValues[input.id] = parseNumber(input.value);
-  });
+  // First pass: Calculate parking requirements for all uses except those with ancillary use
+  useSections.forEach(useDiv => {
+    const useIndex = useDiv.dataset.index;
+    const useSelect = useDiv.querySelector(`#use-select-${useIndex}`);
+    const columnSelect = useDiv.querySelector(`#column-select-${useIndex}`);
+    const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${useIndex}`);
 
-  entries.forEach((entry) => {
-    let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
-    if (rate === 0) return; // Skip if rate is zero
+    const selectedUse = useSelect.value;
+    const selectedColumn = columnSelect.value;
 
-    const measure = entry.measure.toLowerCase();
+    if (!selectedUse || !selectedColumn) {
+      alert("Please select a use and a column for each section.");
+      return;
+    }
 
-    // Split the measure string into components
-    const measureComponents = measure.split(/ plus | and /);
+    // Get all entries for the selected use and column
+    const entries = carParkingData.filter(item =>
+      item.use === selectedUse &&
+      ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+    );
 
-    let parkingSpaces = 0;
+    let useParkingSpaces = 0;
+    let hasAncillary = false;
 
-    // For each component, find matching measureConfig entry
-    measureComponents.forEach((component) => {
-      component = component.trim();
-      for (const config of measureConfig) {
-        if (config.pattern.test(component)) {
-          parkingSpaces += config.calculation(rate, inputValues);
-          break; // Stop after finding the first matching measure
-        }
-      }
+    // Collect input values
+    const inputValues = {};
+    const inputElements = dynamicInputs.querySelectorAll("input");
+    inputElements.forEach(input => {
+      inputValues[input.id.replace(`_${useIndex}`, '')] = parseNumber(input.value);
     });
 
-    // Round down the parking spaces
-    parkingSpaces = Math.floor(parkingSpaces);
+    entries.forEach((entry) => {
+      let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
+      if (rate === 0) return; // Skip if rate is zero
 
-    totalParkingSpaces += parkingSpaces;
+      const measure = entry.measure.toLowerCase();
+
+      // Split the measure string into components
+      const measureComponents = measure.split(/ plus | and /);
+
+      let parkingSpaces = 0;
+
+      // For each component, find matching measureConfig entry
+      measureComponents.forEach((component) => {
+        component = component.trim();
+        for (const config of measureConfig) {
+          if (config.pattern.test(component)) {
+            // Check if the measure includes ancillary use
+            if (component.includes("ancillary use")) {
+              hasAncillary = true;
+              // We will calculate this in the second pass
+            } else {
+              parkingSpaces += config.calculation(rate, inputValues);
+            }
+            break; // Stop after finding the first matching measure
+          }
+        }
+      });
+
+      // Round down the parking spaces
+      parkingSpaces = Math.floor(parkingSpaces);
+
+      useParkingSpaces += parkingSpaces;
+    });
+
+    // Store the parking requirement for this use
+    parkingRequirements.push({
+      useIndex,
+      use: selectedUse,
+      parkingSpaces: useParkingSpaces,
+      hasAncillary
+    });
+
+    // Only add to total if there's no ancillary use calculation pending
+    if (!hasAncillary) {
+      totalParkingSpaces += useParkingSpaces;
+    }
   });
 
-  resultDiv.textContent = `Required Number of Parking Spaces: ${totalParkingSpaces}`;
+  // Second pass: Calculate parking requirements for uses with ancillary use
+  parkingRequirements.forEach(requirement => {
+    if (requirement.hasAncillary) {
+      const useDiv = usesContainer.querySelector(`div[data-index='${requirement.useIndex}']`);
+      const useSelect = useDiv.querySelector(`#use-select-${requirement.useIndex}`);
+      const columnSelect = useDiv.querySelector(`#column-select-${requirement.useIndex}`);
+      const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${requirement.useIndex}`);
+
+      const selectedUse = useSelect.value;
+      const selectedColumn = columnSelect.value;
+
+      // Get all entries for the selected use and column
+      const entries = carParkingData.filter(item =>
+        item.use === selectedUse &&
+        ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+      );
+
+      let useParkingSpaces = 0;
+
+      // Collect input values
+      const inputValues = {};
+      const inputElements = dynamicInputs.querySelectorAll("input");
+      inputElements.forEach(input => {
+        inputValues[input.id.replace(`_${requirement.useIndex}`, '')] = parseNumber(input.value);
+      });
+
+      entries.forEach((entry) => {
+        let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
+        if (rate === 0) return; // Skip if rate is zero
+
+        const measure = entry.measure.toLowerCase();
+
+        // Split the measure string into components
+        const measureComponents = measure.split(/ plus | and /);
+
+        let parkingSpaces = 0;
+
+        // For each component, find matching measureConfig entry
+        measureComponents.forEach((component) => {
+          component = component.trim();
+          for (const config of measureConfig) {
+            if (config.pattern.test(component)) {
+              if (component.includes("ancillary use")) {
+                // Sum of other uses' parking requirements (excluding current use)
+                const ancillaryParking = totalParkingSpaces;
+                parkingSpaces += config.calculation(rate, { ancillary_use_requirement: ancillaryParking });
+              } else {
+                parkingSpaces += config.calculation(rate, inputValues);
+              }
+              break; // Stop after finding the first matching measure
+            }
+          }
+        });
+
+        // Round down the parking spaces
+        parkingSpaces = Math.floor(parkingSpaces);
+
+        useParkingSpaces += parkingSpaces;
+      });
+
+      // Update total parking spaces
+      totalParkingSpaces += useParkingSpaces;
+
+      // Update the parking requirement for this use
+      requirement.parkingSpaces = useParkingSpaces;
+    }
+  });
+
+  // Prepare results
+  parkingRequirements.forEach(requirement => {
+    useResults.push({
+      use: requirement.use,
+      parkingSpaces: requirement.parkingSpaces
+    });
+  });
+
+  // Display the results
+  resultDiv.innerHTML = "<h3>Parking Requirements:</h3>";
+  const resultList = document.createElement("ul");
+
+  useResults.forEach(result => {
+    const listItem = document.createElement("li");
+    listItem.textContent = `${result.use}: ${result.parkingSpaces} spaces`;
+    resultList.appendChild(listItem);
+  });
+
+  const totalItem = document.createElement("p");
+  totalItem.innerHTML = `<strong>Total Parking Spaces Required: ${totalParkingSpaces}</strong>`;
+
+  resultDiv.appendChild(resultList);
+  resultDiv.appendChild(totalItem);
+});
+
+// Event listener for 'Add Use' button
+addUseButton.addEventListener("click", (e) => {
+  e.preventDefault();
+  addUse();
 });

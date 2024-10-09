@@ -10,23 +10,13 @@
   <div class="container">
     <h1>Car Parking Calculator</h1>
     <form id="parking-form">
-      <label for="use-select">Select Use:</label>
-      <select id="use-select" required>
-        <option value="">--Please choose an option--</option>
-      </select>
-
-      <label for="column-select">Select Column:</label>
-      <select id="column-select" required>
-        <option value="">--Please choose an option--</option>
-        <option value="A">Column A</option>
-        <option value="B">Column B</option>
-      </select>
-
-      <div id="dynamic-inputs"></div>
-
+      <div id="uses-container">
+        <!-- Use sections will be dynamically added here -->
+      </div>
+      <button id="add-use-button">Add Use</button>
       <button type="submit">Calculate</button>
     </form>
-
+    
     <div id="result"></div>
   </div>
 

@@ -53,11 +53,15 @@ const measureConfig = [
     calculation: (rate, inputs) => rate * inputs.number_of_children,
   },
   {
-    pattern: /to each employee/,
+    pattern: /to each employee that/,
     inputs: [{ id: "number_of_employees", label: "Number of Employees" }],
     calculation: (rate, inputs) => rate * inputs.number_of_employees,
   },
-
+  {
+    pattern: /to each employee not/,
+    inputs: [{ id: "number_of_employees", label: "Number of Employees not a resident of the dwelling" }],
+    calculation: (rate, inputs) => rate * inputs.number_of_employees,
+  },
   {
     pattern: /to each court/,
     inputs: [{ id: "number_of_courts", label: "Number of Courts" }],
@@ -103,18 +107,18 @@ const measureConfig = [
       const totalDwellings = inputs.number_of_dwellings;
       const firstFiveRate = 5; // Rate for the first 5 dwellings
       const additionalRate = 2; // Rate for additional dwellings
-  
+
       let parkingSpaces = 0;
-  
+
       if (totalDwellings <= 5) {
         parkingSpaces = firstFiveRate * totalDwellings;
       } else {
         parkingSpaces = (firstFiveRate * 5) + (additionalRate * (totalDwellings - 5));
       }
-  
+
       return parkingSpaces;
     },
-  },  
+  },
   {
     pattern: /visitors to every/,
     inputs: [{ id: "number_of_dwellings", label: "Total Number of Dwellings" }],
@@ -228,15 +232,16 @@ function addUse() {
   dynamicInputs.classList.add("dynamic-inputs");
   dynamicInputs.id = `dynamic-inputs-${useIndex}`;
 
-  // Create 'Remove Use' button
+  // Create 'Remove Use' button with bin icon
   const removeUseButton = document.createElement("button");
-  removeUseButton.textContent = "Remove Use";
+  removeUseButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Bin icon
   removeUseButton.type = "button";
   removeUseButton.classList.add("remove-use-button");
 
   removeUseButton.addEventListener("click", () => {
     usesContainer.removeChild(useDiv);
   });
+
 
   // Append elements to useDiv
   useDiv.appendChild(useLabel);
@@ -512,19 +517,44 @@ parkingForm.addEventListener("submit", (e) => {
 
   // Display the results
   resultDiv.innerHTML = "<h3>Parking Requirements:</h3>";
-  const resultList = document.createElement("ul");
 
+  const resultList = document.createElement("div");
+  resultList.classList.add("result-list");
+
+  // Create individual cards for each result
   useResults.forEach(result => {
-    const listItem = document.createElement("li");
-    listItem.textContent = `${result.use}: ${result.parkingSpaces} spaces`;
+    const listItem = document.createElement("div");
+    listItem.classList.add("result-item");
+
+    // Add a parking icon and space count
+    listItem.innerHTML = `
+    <div class="result-icon">
+      <i class="fa-regular fa-building"></i>
+    </div>
+    <div class="result-content">
+      <span class="result-use">${result.use}</span>
+      <span class="result-spaces">${result.parkingSpaces} spaces</span>
+    </div>
+  `;
+
     resultList.appendChild(listItem);
   });
 
-  const totalItem = document.createElement("p");
-  totalItem.innerHTML = `<strong>Total Parking Spaces Required: ${totalParkingSpaces}</strong>`;
+  // Create a total parking spaces summary
+  const totalItem = document.createElement("div");
+  totalItem.classList.add("total-item");
+  totalItem.innerHTML = `
+    <div class="total-icon">
+      <i class="fas fa-parking"></i>
+    </div>
+    <div class="total-content">
+      <strong>Total Parking Spaces Required:</strong> ${totalParkingSpaces}
+    </div>
+  `;
 
   resultDiv.appendChild(resultList);
   resultDiv.appendChild(totalItem);
+
 });
 
 // Event listener for 'Add Use' button

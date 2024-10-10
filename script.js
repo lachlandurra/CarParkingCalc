@@ -202,81 +202,80 @@ function addUse() {
     useSelect.appendChild(option);
   });
 
-  // Create 'Column' select
-  const columnLabel = document.createElement("label");
-  columnLabel.textContent = "Column:";
-  columnLabel.htmlFor = `column-select-${useIndex}`;
+  // Create 'Location' select (replacing 'Column')
+  const locationLabel = document.createElement("label");
+  locationLabel.textContent = "Location:";
+  locationLabel.htmlFor = `location-select-${useIndex}`;
 
-  const columnSelect = document.createElement("select");
-  columnSelect.id = `column-select-${useIndex}`;
-  columnSelect.name = `column-select-${useIndex}`;
-  columnSelect.required = true;
+  const locationSelect = document.createElement("select");
+  locationSelect.id = `location-select-${useIndex}`;
+  locationSelect.name = `location-select-${useIndex}`;
+  locationSelect.required = true;
 
-  const columnOptionA = document.createElement("option");
-  columnOptionA.value = "A";
-  columnOptionA.textContent = "A";
+  const locationOptionOutside = document.createElement("option");
+  locationOptionOutside.value = "Outside PPTN";
+  locationOptionOutside.textContent = "Outside PPT Network Area";
 
-  const columnOptionB = document.createElement("option");
-  columnOptionB.value = "B";
-  columnOptionB.textContent = "B";
+  const locationOptionWithin = document.createElement("option");
+  locationOptionWithin.value = "Within PPTN";
+  locationOptionWithin.textContent = "Within PPT Network Area";
 
-  columnSelect.appendChild(columnOptionA);
-  columnSelect.appendChild(columnOptionB);
+  locationSelect.appendChild(locationOptionOutside);
+  locationSelect.appendChild(locationOptionWithin);
 
   // Container for dynamic inputs
   const dynamicInputs = document.createElement("div");
   dynamicInputs.classList.add("dynamic-inputs");
   dynamicInputs.id = `dynamic-inputs-${useIndex}`;
 
+  // Create 'Remove Use' button
+  const removeUseButton = document.createElement("button");
+  removeUseButton.textContent = "Remove Use";
+  removeUseButton.type = "button";
+  removeUseButton.classList.add("remove-use-button");
+
+  removeUseButton.addEventListener("click", () => {
+    usesContainer.removeChild(useDiv);
+  });
+
   // Append elements to useDiv
   useDiv.appendChild(useLabel);
   useDiv.appendChild(useSelect);
-  useDiv.appendChild(columnLabel);
-  useDiv.appendChild(columnSelect);
+  useDiv.appendChild(locationLabel);
+  useDiv.appendChild(locationSelect);
   useDiv.appendChild(dynamicInputs);
+  useDiv.appendChild(removeUseButton); // Add the remove button
 
   // Add useDiv to usesContainer
   usesContainer.appendChild(useDiv);
 
   // Add event listeners
   useSelect.addEventListener("change", () => generateDynamicInputs(useIndex));
-  columnSelect.addEventListener("change", () => generateDynamicInputs(useIndex));
-}
-
-// Function to initialize both dropdowns
-function initializeDropdowns() {
-  const uniqueUses = [...new Set(carParkingData.map(item => item.use))].sort();
-
-  uniqueUses.forEach(use => {
-    const option = document.createElement("option");
-    option.value = use;
-    option.textContent = use;
-    useSelect.appendChild(option);
-  });
-
-  // Add event listeners
-  useSelect.addEventListener("change", generateDynamicInputs);
-  columnSelect.addEventListener("change", generateDynamicInputs);
+  locationSelect.addEventListener("change", () => generateDynamicInputs(useIndex));
 }
 
 
-// Function to generate dynamic inputs based on Use and Column
+// Function to generate dynamic inputs based on Use and Location
 function generateDynamicInputs(useIndex) {
   const useDiv = usesContainer.querySelector(`div[data-index='${useIndex}']`);
   const useSelect = useDiv.querySelector(`#use-select-${useIndex}`);
-  const columnSelect = useDiv.querySelector(`#column-select-${useIndex}`);
+  const locationSelect = useDiv.querySelector(`#location-select-${useIndex}`);
   const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${useIndex}`);
 
   dynamicInputs.innerHTML = "";
 
   const selectedUse = useSelect.value;
-  const selectedColumn = columnSelect.value;
+  const selectedLocation = locationSelect.value;
 
-  if (selectedUse && selectedColumn) {
-    // Get all entries for the selected use and column
+  if (selectedUse && selectedLocation) {
+    // Determine which rate to use based on location
+    // Assuming 'Within PPTN' uses rateB and 'Outside PPTN' uses rateA
+    const rateColumn = selectedLocation === "Within PPTN" ? "rateB" : "rateA";
+
+    // Get all entries for the selected use and location
     const entries = carParkingData.filter(item =>
       item.use === selectedUse &&
-      ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+      ((rateColumn === "rateA" && item.rateA > 0) || (rateColumn === "rateB" && item.rateB > 0))
     );
 
     // To avoid duplicate inputs, keep track of created input IDs
@@ -354,21 +353,24 @@ parkingForm.addEventListener("submit", (e) => {
   useSections.forEach(useDiv => {
     const useIndex = useDiv.dataset.index;
     const useSelect = useDiv.querySelector(`#use-select-${useIndex}`);
-    const columnSelect = useDiv.querySelector(`#column-select-${useIndex}`);
+    const locationSelect = useDiv.querySelector(`#location-select-${useIndex}`);
     const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${useIndex}`);
 
     const selectedUse = useSelect.value;
-    const selectedColumn = columnSelect.value;
+    const selectedLocation = locationSelect.value;
 
-    if (!selectedUse || !selectedColumn) {
-      alert("Please select a use and a column for each section.");
+    if (!selectedUse || !selectedLocation) {
+      alert("Please select a use and a location for each section.");
       return;
     }
 
-    // Get all entries for the selected use and column
+    // Determine which rate to use based on location
+    const rateColumn = selectedLocation === "Within PPTN" ? "rateB" : "rateA";
+
+    // Get all entries for the selected use and location
     const entries = carParkingData.filter(item =>
       item.use === selectedUse &&
-      ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+      ((rateColumn === "rateA" && item.rateA > 0) || (rateColumn === "rateB" && item.rateB > 0))
     );
 
     let useParkingSpaces = 0;
@@ -382,7 +384,7 @@ parkingForm.addEventListener("submit", (e) => {
     });
 
     entries.forEach((entry) => {
-      let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
+      let rate = rateColumn === "rateA" ? entry.rateA : entry.rateB;
       if (rate === 0) return; // Skip if rate is zero
 
       const measure = entry.measure.toLowerCase();
@@ -434,16 +436,19 @@ parkingForm.addEventListener("submit", (e) => {
     if (requirement.hasAncillary) {
       const useDiv = usesContainer.querySelector(`div[data-index='${requirement.useIndex}']`);
       const useSelect = useDiv.querySelector(`#use-select-${requirement.useIndex}`);
-      const columnSelect = useDiv.querySelector(`#column-select-${requirement.useIndex}`);
+      const locationSelect = useDiv.querySelector(`#location-select-${requirement.useIndex}`);
       const dynamicInputs = useDiv.querySelector(`#dynamic-inputs-${requirement.useIndex}`);
 
       const selectedUse = useSelect.value;
-      const selectedColumn = columnSelect.value;
+      const selectedLocation = locationSelect.value;
 
-      // Get all entries for the selected use and column
+      // Determine which rate to use based on location
+      const rateColumn = selectedLocation === "Within PPTN" ? "rateB" : "rateA";
+
+      // Get all entries for the selected use and location
       const entries = carParkingData.filter(item =>
         item.use === selectedUse &&
-        ((selectedColumn === "A" && item.rateA > 0) || (selectedColumn === "B" && item.rateB > 0))
+        ((rateColumn === "rateA" && item.rateA > 0) || (rateColumn === "rateB" && item.rateB > 0))
       );
 
       let useParkingSpaces = 0;
@@ -456,7 +461,7 @@ parkingForm.addEventListener("submit", (e) => {
       });
 
       entries.forEach((entry) => {
-        let rate = selectedColumn === "A" ? entry.rateA : entry.rateB;
+        let rate = rateColumn === "rateA" ? entry.rateA : entry.rateB;
         if (rate === 0) return; // Skip if rate is zero
 
         const measure = entry.measure.toLowerCase();

@@ -11,14 +11,30 @@
   <div class="container">
     <h1>Car Parking Calculator</h1>
     <p class="info-text">
-      <strong>Note:</strong> The parking requirements differ based on whether the site is within the Principal Public Transport (PPT) Network Area or not.
+      This calculator compares parking requirements under the <strong>old standards</strong> (PPT Network zones) and <strong>new standards</strong> (4-category system) to help you determine the minimum requirement.
     </p>
-    <div class="info-box">
-      <strong>PPT Network Area applies if:</strong>
-      <ul>
-        <li>Any part of the land is identified as being within the Principal Public Transport Network Area as shown on the Principal Public Transport Network Area Maps (State Government of Victoria, August 2018).</li>
-        <li>A schedule to the Parking Overlay or another provision of the planning scheme specifies that the PPT Network Area applies.</li>
-      </ul>
+
+    <div class="info-section">
+      <div class="info-box">
+        <h3><i class="fas fa-history"></i> Old Standards (PPT Network)</h3>
+        <p><strong>PPT Network Area applies if:</strong></p>
+        <ul>
+          <li>Any part of the land is identified as being within the Principal Public Transport Network Area as shown on the Principal Public Transport Network Area Maps (State Government of Victoria, August 2018).</li>
+          <li>A schedule to the Parking Overlay or another provision of the planning scheme specifies that the PPT Network Area applies.</li>
+        </ul>
+      </div>
+
+      <div class="info-box info-box-new">
+        <h3><i class="fas fa-map-marked-alt"></i> New Standards (CPR Categories)</h3>
+        <p>Based on the Car Parking Requirement Maps (Department of Transport and Planning, 2025):</p>
+        <ul>
+          <li><strong>Category 1:</strong> Minimum requirement only</li>
+          <li><strong>Category 2:</strong> Minimum requirement only</li>
+          <li><strong>Category 3:</strong> Both minimum AND maximum requirements</li>
+          <li><strong>Category 4:</strong> Maximum requirement only</li>
+        </ul>
+        <p class="info-note"><i class="fas fa-info-circle"></i> If land is in multiple categories, the higher category number applies.</p>
+      </div>
     </div>
 
     <form id="parking-form">
@@ -32,16 +48,15 @@
         <button type="submit" class="submit-button">
           <span class="add-icon"><i class="fas fa-calculator"></i></span> Calculate
         </button>
-        
       </div>
     </form>
-    
+
     <div id="result"></div>
   </div>
 
   <!-- Include PapaParse Library -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-  
+
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>

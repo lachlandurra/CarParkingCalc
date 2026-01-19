@@ -1,0 +1,50 @@
+Land use,Measure,Category 1,Category 2,Category 3 Min,Category 3 Max,Category 4
+Amusement parlour,To each 100 sq m of net floor area,4,2,0,2,1
+Art and craft centre,To each 100 sq m of net floor area,4,2,0,2,1
+Betting agency,To each 100 sq m of net floor area,4,2,0,2,1
+Bowling green,To each rink,6,3,0,3,1.5
+Child care centre,To each employee,1,0.5,0.25,,
+Convenience restaurant,To each patron permitted,0.3,0.15,0,0.15,0.08
+Display home centre,To each dwelling,5,2.5,0,2.5,1.25
+Dwelling,To each dwelling,1.2,1,0,2,2
+Education centre other than listed in this table,To each student,0.4,0.05,0,0.1,0.05
+Food and drink premises other than listed in this table,To each 100 sq m of net floor area,4,2,0,2,1
+Freezing and cool storage,To each 100 sq m of net floor area,1.5,0.2,0,0.4,0.2
+Fuel depot,Per cent of site area,10,5,5,10,5
+Funeral parlour,To each patron permitted,0.3,0.15,0,0.15,0.08
+Gambling premises other than listed in this table,To each 100 sq m of net floor area,4,2,0,2,1
+Golf course,To each hole,4,2,0,2,1
+Home based business,To each employee not a resident of the dwelling,1,0,0,,
+Industry other than listed in this table,To each 100 sq m of leasable floor area,2.9,0.4,0,0.8,0.8
+Landscape gardening supplies,Per cent of site area,10,5,5,10,5
+Mail centre,To each 100 sq m of net floor area,3.5,0.45,0,0.9,0.45
+Manufacturing sales,To each 100 sq m of leasable floor area,4,2,0,2,1
+Market,To each 100 sq m of site area,8,4,5,6,6
+Materials recycling,Per cent of site area,10,5,5,10,5
+Medical centre,To each 100 sq m of leasable floor area,5,3.5,0,5,5
+Milk depot,Per cent of site area,10,5,5,10,5
+Motel,To each bedroom,1,1,0,0.5,0.2
+Office other than listed in this table,To each 100 sq m of net floor area,3.5,0.45,0,0.9,0.45
+Place of assembly other than listed in this table,To each patron permitted,0.3,0.15,0,0.15,0.08
+Postal agency,To each 100 sq m of net floor area,4,2,0,2,1
+Primary produce sales,To each 100 sq m of net floor area,4,2,0,2,1
+Primary school,To each employee,1,0.5,0.25,,
+Research and development centre,To each 100 sq m of net floor area,3.5,0.45,0,0.9,0.45
+Residential aged care facility,To each bedroom,0.3,0.25,0.25,0.45,0.45
+Residential village,To each dwelling,1.2,1,0,2,2
+Retirement village,To each dwelling,1.2,1,0,2,2
+Restricted retail premises,To each 100 sq m of leasable floor area,3,1.5,1.5,2,2
+Rooming house,To each bedroom,0.25,0.25,0,0.15,0.1
+Saleyard,Per cent of site area,10,5,5,10,5
+Secondary school,To each employee,1,0.5,0.25,,
+Shop other than listed in this table,To each 100 sq m of leasable floor area,4,2,0,2,1
+Squash court other than in conjunction with a dwelling,To each court,4,2,0,2,1
+Store other than listed in this table,Per cent of site area,10,5,5,10,5
+Supermarket,To each 100 sq m of leasable floor area,5,2.5,0,2.5,1.25
+Swimming pool other than in conjunction with a dwelling,To each 100 sq m of site area,5.6,2.8,0,2.8,2.1
+Tennis court other than in conjunction with a dwelling,To each court,4,2,0,2,1
+Trade supplies,Per cent of site area,10,5,5,10,10
+Veterinary centre,To each 100 sq m of leasable floor area,5,3.5,0,5,5
+Warehouse other than listed in this table,To each 100 sq m of net floor area,2,0.25,0,0.5,0.5
+Winery,To each patron permitted,0.4,0.2,0,0.2,0.1
+Gymnasium,To each 100 sq m of net floor area,3,1.5,0,1.5,0.75
